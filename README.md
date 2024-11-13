@@ -23,7 +23,7 @@ Para ejecutar este proyecto, necesitarás:
    docker-compose up -d
    ```
 
-   Esto iniciará la base de datos necesaria para el proyecto.
+   Esto iniciará la base de datos necesaria para el proyecto, cabe aclarar que este docker-compose esta en cltech-api.
 
 ---
 
