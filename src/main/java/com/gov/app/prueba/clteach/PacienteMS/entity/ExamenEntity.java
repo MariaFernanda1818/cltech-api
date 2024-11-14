@@ -30,7 +30,7 @@ public class ExamenEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_examen")
-    private Long id;
+    private Long idExamen;
 
     /**
      * Código único que identifica el examen.

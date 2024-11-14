@@ -15,6 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import static com.gov.app.prueba.clteach.PacienteMS.util.helper.Constantes.*;
+
 /**
  * Servicio para realizar la validación y el guardado de pacientes y sus exámenes.
  * <p>
@@ -68,38 +70,35 @@ public class GuardarPacienteService implements IGuardarPacienteService {
     public RespuestaGeneralDTO validacionesPaciente(PacienteRequestDTO pacienteRequestDTO) throws Exception {
 
         RespuestaGeneralDTO respuestaGeneralDTO = new RespuestaGeneralDTO();
-
-        PacienteDTO pacienteDTO = PacienteDTO.builder()
-                .nombrePaciente(pacienteRequestDTO.getNombres())
-                .numeroOrden(Integer.valueOf(pacienteRequestDTO.getNumeroOrden()))
-                .build();
-
-        ExamenDTO examenDTO = ExamenDTO.builder()
-                .codigoExamen(pacienteRequestDTO.getCodigoExamen())
-                .resultadoExamen(pacienteRequestDTO.getResultadoExamen())
-                .build();
-
+        if(pacienteRepository.existsByNumeroOrden(pacienteRequestDTO.getNumeroOrden())) {
+            respuestaGeneralDTO.setStatus(HttpStatus.BAD_REQUEST.name());
+            respuestaGeneralDTO.setCodigo(HttpStatus.OK.value());
+            respuestaGeneralDTO.setMessage(NUMERO_ORDEN_REGISTRADO);
+            return respuestaGeneralDTO;
+        }
         try {
+            PacienteDTO pacienteDTO = PacienteDTO.builder()
+                    .nombrePaciente(pacienteRequestDTO.getNombres())
+                    .numeroOrden(pacienteRequestDTO.getNumeroOrden())
+                    .build();
             // Convertir DTOs a entidades
             PacienteEntity pacienteEntity = pacienteMapper.dtoToEntity(pacienteDTO);
-            ExamenEntity examenEntity = examenMapper.dtoToEntity(examenDTO);
-
-            // Guardar el paciente y asociar los exámenes
             pacienteEntity = pacienteRepository.save(pacienteEntity);
-            examenEntity.setPacienteFk(pacienteEntity);
-            examenEntity = examenRepository.save(examenEntity);
-
+            for(ExamenDTO examen :  pacienteRequestDTO.getExamenes()){
+                ExamenEntity examenEntity = examenMapper.dtoToEntity(examen);
+                examenEntity.setPacienteFk(pacienteEntity);
+                examenRepository.save(examenEntity);
+            }
             // Configurar respuesta de éxito
             respuestaGeneralDTO.setStatus(HttpStatus.CREATED.name());
             respuestaGeneralDTO.setCodigo(HttpStatus.CREATED.value());
-            respuestaGeneralDTO.setMessage("El paciente y los exámenes se han guardado correctamente");
+            respuestaGeneralDTO.setMessage(PACIENTE_EXAMENES_GUARDADOS);
 
         } catch (Exception e) {
             // Configurar respuesta de error
             respuestaGeneralDTO.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.name());
             respuestaGeneralDTO.setCodigo(HttpStatus.INTERNAL_SERVER_ERROR.value());
-            respuestaGeneralDTO.setData(null);
-            respuestaGeneralDTO.setMessage("Error al guardar el paciente y los exámenes");
+            respuestaGeneralDTO.setMessage(ERRROR_GUARDADO_PACIENTE_EXAMENES);
         }
         return respuestaGeneralDTO;
     }

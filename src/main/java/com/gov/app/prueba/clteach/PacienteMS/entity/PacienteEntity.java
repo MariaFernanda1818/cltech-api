@@ -6,6 +6,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Entidad JPA que representa la tabla "paciente" en la base de datos.
  * <p>
@@ -30,7 +33,7 @@ public class PacienteEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_paciente")
-    private Long id;
+    private Long idPaciente;
 
     /**
      * Nombre completo del paciente.
@@ -50,5 +53,6 @@ public class PacienteEntity {
      * Ejemplo: 12345.
      */
     @Column(name = "numero_orden_paciente", nullable = false)
-    private Integer numeroOrden;
+    private String numeroOrden;
+
 }
